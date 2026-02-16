@@ -42,6 +42,5 @@ namespace CurrencyConverter.Api.Controllers
             var result = await _service.GetHistoricalRates(request);
             return Ok(result);
         }
-
     }
 }

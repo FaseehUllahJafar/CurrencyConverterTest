@@ -1,7 +1,7 @@
 import axios from "axios";
 import type { ExchangeRateResponse, ConversionRequest, ConversionResponse, HistoricalRateRequest, HistoricalRateResponse } from "../types/currency";
 
-const API_URL = "https://localhost:7212/api/currency"; // change port if needed
+const API_URL = "https://localhost:7057/api/currency"; // change port if needed
 
 export const getLatestRates = async (baseCurrency: string): Promise<ExchangeRateResponse> => {
     const { data } = await axios.get(`${API_URL}/latest/${baseCurrency}`);

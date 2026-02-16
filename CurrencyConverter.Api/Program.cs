@@ -10,7 +10,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(name: "AllowAll",
+    options.AddPolicy("AllowAllOrigins",
         policy =>
         {
             policy.AllowAnyOrigin()
@@ -21,8 +21,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-app.UseCors("AllowAll");
-
+app.UseCors("AllowAllOrigins");
 app.UseMiddleware<ExceptionMiddleware>();
 
 if (app.Environment.IsDevelopment())

@@ -20,15 +20,17 @@ namespace CurrencyConverter.Api.Providers
 
         public async Task<ExchangeRateResponse> GetLatestRatesAsync(string baseCurrency)
         {
-            var url = $"https://api.frankfurter.app/latest?base={baseCurrency}";
-            var response = await _httpClient.GetFromJsonAsync<ExchangeRateResponse>(url);
+            var response = await _httpClient.GetFromJsonAsync<ExchangeRateResponse>(
+                $"latest?base={baseCurrency}");
+
             return response!;
         }
 
         public async Task<HistoricalRateResponse> GetHistoricalRatesAsync(string baseCurrency, DateTime start, DateTime end)
         {
-            var url = $"https://api.frankfurter.app/{start:yyyy-MM-dd}..{end:yyyy-MM-dd}?base={baseCurrency}";
-            var response = await _httpClient.GetFromJsonAsync<HistoricalRateResponse>(url);
+            var response = await _httpClient.GetFromJsonAsync<HistoricalRateResponse>(
+                $"{start:yyyy-MM-dd}..{end:yyyy-MM-dd}?base={baseCurrency}");
+
             return response!;
         }
 

@@ -1,4 +1,5 @@
-﻿using CurrencyConverter.Api.Providers;
+﻿using CurrencyConverter.Api.Factories;
+using CurrencyConverter.Api.Providers;
 using CurrencyConverter.Api.Services;
 using Microsoft.Extensions.Http.Resilience;
 using Polly;
@@ -32,6 +33,15 @@ namespace CurrencyConverter.Api.Extensions
                 options.AttemptTimeout.Timeout = TimeSpan.FromSeconds(10);
             });
 
+            // Register providers
+            services.AddScoped<ICurrencyProvider, FrankfurterCurrencyProvider>();
+            services.AddScoped<ICurrencyProvider, FakeCurrencyProvider>();
+
+
+            // Register factory
+            services.AddScoped<ICurrencyProviderFactory, CurrencyProviderFactory>();
+
+            // Register service
             services.AddScoped<ICurrencyService, CurrencyService>();
         }
     }

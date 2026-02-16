@@ -1,4 +1,5 @@
-﻿using CurrencyConverter.Api.Models;
+﻿using CurrencyConverter.Api.Factories;
+using CurrencyConverter.Api.Models;
 using CurrencyConverter.Api.Providers;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -13,15 +14,20 @@ namespace CurrencyConverter.Api.Services
 
     public class CurrencyService : ICurrencyService
     {
-        private readonly ICurrencyProvider _provider;
-        private readonly IMemoryCache _cache;
+
         private readonly string[] _excludedCurrencies = { "TRY", "PLN", "THB", "MXN" };
 
-        public CurrencyService(ICurrencyProvider provider, IMemoryCache cache)
+        private readonly ICurrencyProviderFactory _providerFactory;
+        private readonly IMemoryCache _cache;
+
+        public CurrencyService(
+            ICurrencyProviderFactory providerFactory,
+            IMemoryCache cache)
         {
-            _provider = provider;
+            _providerFactory = providerFactory;
             _cache = cache;
         }
+
 
         public async Task<ExchangeRateResponse> GetLatestRates(string baseCurrency)
         {
@@ -32,7 +38,9 @@ namespace CurrencyConverter.Api.Services
                 return cachedRates;
             }
 
-            var rates = await _provider.GetLatestRatesAsync(baseCurrency.ToUpper());
+            var provider = _providerFactory.GetProvider("Frankfurter");
+            var rates = await provider.GetLatestRatesAsync(baseCurrency);
+
 
             var cacheOptions = new MemoryCacheEntryOptions
             {
@@ -78,8 +86,9 @@ namespace CurrencyConverter.Api.Services
             {
                 return PaginateHistoricalData(cachedData, request);
             }
+            var provider = _providerFactory.GetProvider("Frankfurter");
 
-            var data = await _provider.GetHistoricalRatesAsync(
+            var data = await provider.GetHistoricalRatesAsync(
                 request.BaseCurrency.ToUpper(),
                 request.StartDate,
                 request.EndDate

@@ -3,15 +3,11 @@ using System.Net.Http.Json;
 
 namespace CurrencyConverter.Api.Providers
 {
-    public interface ICurrencyProvider
-    {
-        Task<ExchangeRateResponse> GetLatestRatesAsync(string baseCurrency);
-        Task<HistoricalRateResponse> GetHistoricalRatesAsync(string baseCurrency, DateTime start, DateTime end);
-    }
-
     public class FrankfurterCurrencyProvider : ICurrencyProvider
     {
         private readonly HttpClient _httpClient;
+
+        public string ProviderName => "Frankfurter";
 
         public FrankfurterCurrencyProvider(HttpClient httpClient)
         {
@@ -20,19 +16,19 @@ namespace CurrencyConverter.Api.Providers
 
         public async Task<ExchangeRateResponse> GetLatestRatesAsync(string baseCurrency)
         {
-            var response = await _httpClient.GetFromJsonAsync<ExchangeRateResponse>(
-                $"latest?base={baseCurrency}");
-
-            return response!;
+            return await _httpClient.GetFromJsonAsync<ExchangeRateResponse>(
+                $"latest?base={baseCurrency}")
+                ?? throw new Exception("Failed to fetch latest rates.");
         }
 
-        public async Task<HistoricalRateResponse> GetHistoricalRatesAsync(string baseCurrency, DateTime start, DateTime end)
+        public async Task<HistoricalRateResponse> GetHistoricalRatesAsync(
+            string baseCurrency,
+            DateTime start,
+            DateTime end)
         {
-            var response = await _httpClient.GetFromJsonAsync<HistoricalRateResponse>(
-                $"{start:yyyy-MM-dd}..{end:yyyy-MM-dd}?base={baseCurrency}");
-
-            return response!;
+            return await _httpClient.GetFromJsonAsync<HistoricalRateResponse>(
+                $"{start:yyyy-MM-dd}..{end:yyyy-MM-dd}?base={baseCurrency}")
+                ?? throw new Exception("Failed to fetch historical rates.");
         }
-
     }
 }

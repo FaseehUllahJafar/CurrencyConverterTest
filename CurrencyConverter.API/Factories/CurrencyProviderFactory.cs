@@ -2,19 +2,29 @@
 
 namespace CurrencyConverter.Api.Factories
 {
-    public class CurrencyProviderFactory
+    public interface ICurrencyProviderFactory
     {
-        private readonly IServiceProvider _provider;
+        ICurrencyProvider GetProvider(string providerName);
+    }
 
-        public CurrencyProviderFactory(IServiceProvider provider)
+    public class CurrencyProviderFactory : ICurrencyProviderFactory
+    {
+        private readonly IEnumerable<ICurrencyProvider> _providers;
+
+        public CurrencyProviderFactory(IEnumerable<ICurrencyProvider> providers)
         {
-            _provider = provider;
+            _providers = providers;
         }
 
-        public ICurrencyProvider GetProvider()
+        public ICurrencyProvider GetProvider(string providerName)
         {
-            // For now, only Frankfurter is implemented
-            return _provider.GetRequiredService<ICurrencyProvider>();
+            var provider = _providers.FirstOrDefault(p =>
+                p.ProviderName.Equals(providerName, StringComparison.OrdinalIgnoreCase));
+
+            if (provider == null)
+                throw new NotSupportedException($"Provider '{providerName}' is not supported.");
+
+            return provider;
         }
     }
 }

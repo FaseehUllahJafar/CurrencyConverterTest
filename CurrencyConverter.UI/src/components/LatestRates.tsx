@@ -1,28 +1,39 @@
-import React, { useEffect, useState } from "react";
-import { useCurrencies } from "../hooks/useCurrencies";
+import React, { useState } from "react";
 import { getLatestRates } from "../api/currencyApi";
-import type { ExchangeRateResponse } from "../types/currency";
 
-export const LatestRates: React.FC = () => {
-    const currencies = useCurrencies();
-    const [base, setBase] = useState("USD");
-    const [rates, setRates] = useState<ExchangeRateResponse | null>(null);
+const LatestRates: React.FC = () => {
+    const [baseCurrency, setBaseCurrency] = useState("USD");
+    const [rates, setRates] = useState<Record<string, number> | null>(null);
     const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
-        setLoading(true);
-        getLatestRates(base).then(setRates).finally(() => setLoading(false));
-    }, [base]);
+    const handleFetch = async () => {
+        try {
+            setLoading(true);
+            const data = await getLatestRates(baseCurrency);
+            setRates(data.rates);
+        } catch (error) {
+            alert("Failed to fetch latest rates");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <div>
             <h2>Latest Rates</h2>
-            <select value={base} onChange={e => setBase(e.target.value)}>
-                {currencies.map(c => <option key={c} value={c}>{c}</option>)}
-            </select>
-            {loading && <p>Loading...</p>}
+
+            <input
+                value={baseCurrency}
+                onChange={(e) => setBaseCurrency(e.target.value.toUpperCase())}
+                placeholder="Base Currency (e.g. USD)"
+            />
+
+            <button onClick={handleFetch} disabled={loading}>
+                {loading ? "Loading..." : "Get Latest Rates"}
+            </button>
+
             {rates && (
-                <table>
+                <table border={1} cellPadding={5} style={{ marginTop: "10px" }}>
                     <thead>
                         <tr>
                             <th>Currency</th>
@@ -30,7 +41,7 @@ export const LatestRates: React.FC = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {Object.entries(rates.rates).map(([currency, rate]) => (
+                        {Object.entries(rates).map(([currency, rate]) => (
                             <tr key={currency}>
                                 <td>{currency}</td>
                                 <td>{rate}</td>
@@ -42,3 +53,5 @@ export const LatestRates: React.FC = () => {
         </div>
     );
 };
+
+export default LatestRates;

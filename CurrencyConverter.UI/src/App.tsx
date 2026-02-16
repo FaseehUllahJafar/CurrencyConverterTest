@@ -1,19 +1,27 @@
-import React from 'react';
-import { ConversionForm } from './components/ConversionForm';
-import { LatestRates } from './components/LatestRates';
-import { HistoricalRates } from './components/HistoricalRates';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./auth/AuthContext";
+import ProtectedRoute from "./auth/ProtectedRoute";
+import Login from "./auth/Login";
+import Dashboard from "./components/Dashboard";
 
-const App: React.FC = () => {
+function App() {
   return (
-    <div className="App" style={{ padding: "2rem" }}>
-      <h1>Currency Converter Platform</h1>
-      <ConversionForm />
-      <hr />
-      <LatestRates />
-      <hr />
-      <HistoricalRates />
-    </div>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
-};
+}
 
 export default App;

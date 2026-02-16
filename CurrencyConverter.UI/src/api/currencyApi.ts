@@ -1,19 +1,17 @@
-import axios from "axios";
-import type { ExchangeRateResponse, ConversionRequest, ConversionResponse, HistoricalRateRequest, HistoricalRateResponse } from "../types/currency";
-
-const API_URL = "https://localhost:7057/api/currency"; // change port if needed
+import axios from "./axiosInstance";
+import type { ConversionRequest, ConversionResponse, ExchangeRateResponse, HistoricalRateRequest, HistoricalRateResponse } from "../types/currency";
 
 export const getLatestRates = async (baseCurrency: string): Promise<ExchangeRateResponse> => {
-    const { data } = await axios.get(`${API_URL}/latest/${baseCurrency}`);
-    return data;
+    const res = await axios.get(`/currency/latest`, { params: { baseCurrency } });
+    return res.data;
 };
 
-export const convertCurrency = async (request: ConversionRequest): Promise<ConversionResponse> => {
-    const { data } = await axios.post(`${API_URL}/convert`, request);
-    return data;
+export const convertCurrency = async (data: ConversionRequest): Promise<ConversionResponse> => {
+    const res = await axios.post(`/currency/convert`, { data });
+    return res.data;
 };
 
-export const getHistoricalRates = async (request: HistoricalRateRequest): Promise<HistoricalRateResponse> => {
-    const { data } = await axios.get(`${API_URL}/historical`, { params: request });
-    return data;
+export const getHistoricalRates = async (params: HistoricalRateRequest): Promise<HistoricalRateResponse> => {
+    const res = await axios.get(`/currency/historical`, { params });
+    return res.data;
 };

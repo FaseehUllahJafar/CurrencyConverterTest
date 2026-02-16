@@ -25,12 +25,27 @@ namespace CurrencyConverter.Api.Services
 
         public async Task<ExchangeRateResponse> GetLatestRates(string baseCurrency)
         {
-            return await _cache.GetOrCreateAsync($"latest_{baseCurrency}", async entry =>
+            string cacheKey = $"latest_{baseCurrency.ToUpper()}";
+
+            if (_cache.TryGetValue(cacheKey, out ExchangeRateResponse cachedRates))
             {
-                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10);
-                return await _provider.GetLatestRatesAsync(baseCurrency);
-            });
+                return cachedRates;
+            }
+
+            var rates = await _provider.GetLatestRatesAsync(baseCurrency.ToUpper());
+
+            var cacheOptions = new MemoryCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10),
+                SlidingExpiration = TimeSpan.FromMinutes(5),
+                Priority = CacheItemPriority.High
+            };
+
+            _cache.Set(cacheKey, rates, cacheOptions);
+
+            return rates;
         }
+
 
         public async Task<ConversionResponse> ConvertCurrency(ConversionRequest request)
         {
@@ -57,11 +72,34 @@ namespace CurrencyConverter.Api.Services
 
         public async Task<HistoricalRateResponse> GetHistoricalRates(HistoricalRateRequest request)
         {
-            // Call provider
-            var allRates = await _provider.GetHistoricalRatesAsync(request.BaseCurrency.ToUpper(), request.StartDate, request.EndDate);
+            string cacheKey = $"historical_{request.BaseCurrency}_{request.StartDate:yyyyMMdd}_{request.EndDate:yyyyMMdd}";
 
-            // Sort dates
-            var sortedRates = allRates.Rates
+            if (_cache.TryGetValue(cacheKey, out HistoricalRateResponse cachedData))
+            {
+                return PaginateHistoricalData(cachedData, request);
+            }
+
+            var data = await _provider.GetHistoricalRatesAsync(
+                request.BaseCurrency.ToUpper(),
+                request.StartDate,
+                request.EndDate
+            );
+
+            var cacheOptions = new MemoryCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(6),
+                Priority = CacheItemPriority.Normal
+            };
+
+            _cache.Set(cacheKey, data, cacheOptions);
+
+            return PaginateHistoricalData(data, request);
+        }
+
+        //helper
+        private HistoricalRateResponse PaginateHistoricalData(HistoricalRateResponse data, HistoricalRateRequest request)
+        {
+            var pagedRates = data.Rates
                 .OrderBy(r => r.Key)
                 .Skip((request.Page - 1) * request.PageSize)
                 .Take(request.PageSize)
@@ -69,12 +107,13 @@ namespace CurrencyConverter.Api.Services
 
             return new HistoricalRateResponse
             {
-                Base = allRates.Base,
-                Start_Date = allRates.Start_Date,
-                End_Date = allRates.End_Date,
-                Rates = sortedRates
+                Base = data.Base,
+                Start_Date = data.Start_Date,
+                End_Date = data.End_Date,
+                Rates = pagedRates
             };
         }
+
 
 
     }

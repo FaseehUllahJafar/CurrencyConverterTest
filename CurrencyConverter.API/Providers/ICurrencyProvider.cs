@@ -8,9 +8,6 @@ namespace CurrencyConverter.Api.Providers
 
         Task<ExchangeRateResponse> GetLatestRatesAsync(string baseCurrency);
 
-        Task<HistoricalRateResponse> GetHistoricalRatesAsync(
-            string baseCurrency,
-            DateTime start,
-            DateTime end);
+        Task<HistoricalRateResponse> GetHistoricalRatesAsync(HistoricalRateRequest request);
     }
 }

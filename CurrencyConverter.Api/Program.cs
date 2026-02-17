@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Serilog;
+
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -60,6 +62,19 @@ builder.Services.AddRateLimiter(options =>
     });
 });
 
+//logger
+Log.Logger = new LoggerConfiguration()
+    .Enrich.FromLogContext()
+    .Enrich.WithEnvironmentName()
+    .Enrich.WithThreadId()
+    .WriteTo.Console()
+    .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+
+builder.Host.UseSerilog();
+
+builder.Services.AddHttpContextAccessor();
+
 
 
 var app = builder.Build();
@@ -80,6 +95,8 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 app.UseRateLimiter();
+app.UseMiddleware<RequestLoggingMiddleware>();
+
 
 
 app.Run();

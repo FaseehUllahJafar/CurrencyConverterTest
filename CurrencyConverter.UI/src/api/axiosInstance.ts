@@ -2,6 +2,9 @@ import axios from "axios";
 
 const instance = axios.create({
     baseURL: "https://localhost:7057/api",
+    headers: {
+        "Content-Type": "application/json"
+    }
 });
 
 instance.interceptors.request.use((config) => {
@@ -11,15 +14,17 @@ instance.interceptors.request.use((config) => {
 });
 
 instance.interceptors.response.use(
-    (res) => res,
+    (response) => response,
     (error) => {
         if (error.response?.status === 401) {
             localStorage.removeItem("token");
             window.location.href = "/login";
         }
+
         if (error.response?.status === 429) {
-            alert("Too many requests. Please try again in a minute.");
+            alert("Too many requests. Wait 1 minute.");
         }
+
         return Promise.reject(error);
     }
 );

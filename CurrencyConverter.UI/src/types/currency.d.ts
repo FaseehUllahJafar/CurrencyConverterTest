@@ -1,26 +1,27 @@
+export interface ConversionRequest {
+    amount: number;
+    fromCurrency: string;
+    toCurrency: string;
+}
+
+export interface ConversionResponse {
+    originalAmount: number;
+    fromCurrency: string;
+    toCurrency: string;
+    convertedAmount: number;
+    rate: number;
+}
+
 export interface ExchangeRateResponse {
     base: string;
     date: string;
     rates: Record<string, number>;
 }
 
-export interface ConversionRequest {
-    from: string;
-    to: string;
-    amount: number;
-}
-
-export interface ConversionResponse {
-    from: string;
-    to: string;
-    amount: number;
-    result: number;
-}
-
 export interface HistoricalRateRequest {
     baseCurrency: string;
-    startDate: string; // yyyy-MM-dd
-    endDate: string;   // yyyy-MM-dd
+    startDate: string;
+    endDate: string;
     page?: number;
     pageSize?: number;
 }

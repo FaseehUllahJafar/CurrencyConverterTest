@@ -92,6 +92,12 @@ namespace CurrencyConverter.Api.Services
         {
             request.BaseCurrency = request.BaseCurrency.ToUpper();
 
+            _logger.LogInformation(
+              "Fetching historical rates for {BaseCurrency} from {Start} to {End}",
+              request.BaseCurrency,
+              request.StartDate,
+              request.EndDate);
+
             string cacheKey = $"historical_{request.BaseCurrency}_{request.StartDate:yyyyMMdd}_{request.EndDate:yyyyMMdd}";
 
             if (_cache.TryGetValue(cacheKey, out HistoricalRateResponse cachedData))
@@ -110,6 +116,12 @@ namespace CurrencyConverter.Api.Services
 
             _cache.Set(cacheKey, data, cacheOptions);
 
+            _logger.LogInformation(
+          "return historical rates for {BaseCurrency} from {Start} to {End}",
+         data.Base,
+         data.Start_Date,
+         data.End_Date);
+
             return PaginateHistoricalData(data, request);
         }
 
@@ -117,24 +129,11 @@ namespace CurrencyConverter.Api.Services
         private HistoricalRateResponse PaginateHistoricalData(HistoricalRateResponse data, HistoricalRateRequest request)
         {
 
-            _logger.LogInformation(
-                "Fetching historical rates for {BaseCurrency} from {Start} to {End}",
-                request.BaseCurrency,
-                request.StartDate,
-                request.EndDate);
-
             var pagedRates = data.Rates
                 .OrderBy(r => r.Key)
                 .Skip((request.Page - 1) * request.PageSize)
                 .Take(request.PageSize)
                 .ToDictionary(x => x.Key, x => x.Value);
-
-            _logger.LogInformation(
-             "return historical rates for {BaseCurrency} from {Start} to {End}, rates ={}",
-            data.Base,
-            data.Start_Date,
-            data.End_Date,
-            pagedRates.ToString());
 
 
             return new HistoricalRateResponse

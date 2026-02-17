@@ -5,12 +5,6 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace CurrencyConverter.Api.Services
 {
-    public interface ICurrencyService
-    {
-        Task<ExchangeRateResponse> GetLatestRates(string baseCurrency);
-        Task<ConversionResponse> ConvertCurrency(ConversionRequest request);
-        Task<HistoricalRateResponse> GetHistoricalRates(HistoricalRateRequest request);
-    }
 
     public class CurrencyService : ICurrencyService
     {
@@ -19,18 +13,22 @@ namespace CurrencyConverter.Api.Services
 
         private readonly ICurrencyProviderFactory _providerFactory;
         private readonly IMemoryCache _cache;
+        private readonly ILogger<CurrencyService> _logger;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public CurrencyService(
-            ICurrencyProviderFactory providerFactory,
-            IMemoryCache cache)
+        public CurrencyService(ICurrencyProviderFactory providerFactory, IMemoryCache cache, ILogger<CurrencyService> logger, IHttpContextAccessor httpContextAccessor)
         {
             _providerFactory = providerFactory;
             _cache = cache;
+            _logger = logger;
+            _httpContextAccessor = httpContextAccessor;
         }
 
 
         public async Task<ExchangeRateResponse> GetLatestRates(string baseCurrency)
         {
+            _logger.LogInformation("Fetching latest rates for {BaseCurrency}", baseCurrency);
+
             string cacheKey = $"latest_{baseCurrency.ToUpper()}";
 
             if (_cache.TryGetValue(cacheKey, out ExchangeRateResponse cachedRates))
@@ -57,6 +55,12 @@ namespace CurrencyConverter.Api.Services
 
         public async Task<ConversionResponse> ConvertCurrency(ConversionRequest request)
         {
+            _logger.LogInformation(
+               "Starting currency conversion from {From} to {To} for {Amount}",
+               request.FromCurrency,
+               request.ToCurrency,
+               request.Amount);
+
             if (_excludedCurrencies.Contains(request.FromCurrency.ToUpper()) ||
                 _excludedCurrencies.Contains(request.ToCurrency.ToUpper()))
             {
@@ -68,7 +72,7 @@ namespace CurrencyConverter.Api.Services
             if (!rates.Rates.TryGetValue(request.ToCurrency.ToUpper(), out var rate))
                 throw new ArgumentException("Invalid target currency.");
 
-            return new ConversionResponse
+            var converted = new ConversionResponse
             {
                 OriginalAmount = request.Amount,
                 FromCurrency = request.FromCurrency.ToUpper(),
@@ -76,10 +80,24 @@ namespace CurrencyConverter.Api.Services
                 Rate = rate,
                 ConvertedAmount = request.Amount * rate
             };
+
+            _logger.LogInformation(
+                 "Conversion completed with rate {Rate} and result {Result}",
+                 rate,
+                 converted);
+            return converted;
         }
 
         public async Task<HistoricalRateResponse> GetHistoricalRates(HistoricalRateRequest request)
         {
+            request.BaseCurrency = request.BaseCurrency.ToUpper();
+
+            _logger.LogInformation(
+              "Fetching historical rates for {BaseCurrency} from {Start} to {End}",
+              request.BaseCurrency,
+              request.StartDate,
+              request.EndDate);
+
             string cacheKey = $"historical_{request.BaseCurrency}_{request.StartDate:yyyyMMdd}_{request.EndDate:yyyyMMdd}";
 
             if (_cache.TryGetValue(cacheKey, out HistoricalRateResponse cachedData))
@@ -88,11 +106,7 @@ namespace CurrencyConverter.Api.Services
             }
             var provider = _providerFactory.GetProvider("Frankfurter");
 
-            var data = await provider.GetHistoricalRatesAsync(
-                request.BaseCurrency.ToUpper(),
-                request.StartDate,
-                request.EndDate
-            );
+            var data = await provider.GetHistoricalRatesAsync(request);
 
             var cacheOptions = new MemoryCacheEntryOptions
             {
@@ -102,17 +116,25 @@ namespace CurrencyConverter.Api.Services
 
             _cache.Set(cacheKey, data, cacheOptions);
 
+            _logger.LogInformation(
+          "return historical rates for {BaseCurrency} from {Start} to {End}",
+         data.Base,
+         data.Start_Date,
+         data.End_Date);
+
             return PaginateHistoricalData(data, request);
         }
 
         //helper
         private HistoricalRateResponse PaginateHistoricalData(HistoricalRateResponse data, HistoricalRateRequest request)
         {
+
             var pagedRates = data.Rates
                 .OrderBy(r => r.Key)
                 .Skip((request.Page - 1) * request.PageSize)
                 .Take(request.PageSize)
                 .ToDictionary(x => x.Key, x => x.Value);
+
 
             return new HistoricalRateResponse
             {

@@ -18,10 +18,7 @@ public class FakeCurrencyProvider : ICurrencyProvider
         });
     }
 
-    public Task<HistoricalRateResponse> GetHistoricalRatesAsync(
-        string baseCurrency,
-        DateTime start,
-        DateTime end)
+    public Task<HistoricalRateResponse> GetHistoricalRatesAsync(HistoricalRateRequest request)
     {
         throw new NotImplementedException();
     }

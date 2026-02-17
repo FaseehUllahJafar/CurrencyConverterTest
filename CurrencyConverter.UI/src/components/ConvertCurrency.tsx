@@ -10,6 +10,11 @@ const ConvertCurrency: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(false);
 
     const handleConvert = async () => {
+        if (!amount || amount <= 0) {
+            alert("Please enter a valid amount");
+            return;
+        }
+
         setLoading(true);
         try {
             const data = await convertCurrency({
@@ -26,48 +31,87 @@ const ConvertCurrency: React.FC = () => {
         }
     };
 
+    const handleSwap = () => {
+        setFromCurrency(toCurrency);
+        setToCurrency(fromCurrency);
+        setResult(null);
+    };
+
     return (
-        <div>
-            <h2>Currency Converter</h2>
+        <div className="convert-wrapper">
+            <div className="card">
+                <h2>Currency Converter</h2>
 
-            <div>
-                <label>Amount:</label>
-                <input
-                    type="number"
-                    value={amount}
-                    onChange={(e) => setAmount(Number(e.target.value))}
-                />
-            </div>
+                <div className="convert-grid">
+                    <div className="form-group">
+                        <label>Amount</label>
+                        <input
+                            type="number"
+                            value={amount}
+                            onChange={(e) =>
+                                setAmount(Number(e.target.value))
+                            }
+                        />
+                    </div>
 
-            <div>
-                <label>From:</label>
-                <input
-                    value={fromCurrency}
-                    onChange={(e) => setFromCurrency(e.target.value.toUpperCase())}
-                />
-            </div>
+                    <div className="form-group">
+                        <label>From</label>
+                        <input
+                            value={fromCurrency}
+                            onChange={(e) =>
+                                setFromCurrency(
+                                    e.target.value.toUpperCase()
+                                )
+                            }
+                        />
+                    </div>
 
-            <div>
-                <label>To:</label>
-                <input
-                    value={toCurrency}
-                    onChange={(e) => setToCurrency(e.target.value.toUpperCase())}
-                />
-            </div>
+                    <div className="swap-container">
+                        <button
+                            className="swap-btn"
+                            onClick={handleSwap}
+                        >
+                            ⇄
+                        </button>
+                    </div>
 
-            <button onClick={handleConvert} disabled={loading}>
-                {loading ? "Converting..." : "Convert"}
-            </button>
-
-            {result && (
-                <div>
-                    <p>Original Amount: {result.originalAmount}</p>
-                    <p>From Currency: {result.fromCurrency}</p>
-                    <p>To Currency: {result.toCurrency}</p>
-                    <p>Rate: {result.rate}</p>
-                    <h3>Converted Amount: {result.convertedAmount}</h3>
+                    <div className="form-group">
+                        <label>To</label>
+                        <input
+                            value={toCurrency}
+                            onChange={(e) =>
+                                setToCurrency(
+                                    e.target.value.toUpperCase()
+                                )
+                            }
+                        />
+                    </div>
                 </div>
-            )}
+
+                <button
+                    className="convert-btn"
+                    onClick={handleConvert}
+                    disabled={loading}
+                >
+                    {loading ? "Converting..." : "Convert"}
+                </button>
+
+                {result && (
+                    <div className="result-card">
+                        <p>
+                            <strong>{result.originalAmount}</strong>{" "}
+                            {result.fromCurrency} =
+                        </p>
+                        <h3>
+                            {result.convertedAmount}{" "}
+                            {result.toCurrency}
+                        </h3>
+                        <p className="rate-info">
+                            Exchange Rate: {result.rate}
+                        </p>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

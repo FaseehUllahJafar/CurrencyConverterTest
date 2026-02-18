@@ -1,4 +1,5 @@
-﻿using CurrencyConverter.Api.Models;
+﻿using Asp.Versioning;
+using CurrencyConverter.Api.Models;
 using CurrencyConverter.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +10,8 @@ namespace CurrencyConverter.Api.Controllers
     [EnableRateLimiting("fixed")]
     [Authorize]
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/v{version:apiVersion}/[controller]")]
+    [ApiVersion("1.0")]
     public class CurrencyController : ControllerBase
     {
         private readonly ICurrencyService _service;

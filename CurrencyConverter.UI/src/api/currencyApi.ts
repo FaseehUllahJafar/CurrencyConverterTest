@@ -12,7 +12,7 @@ export const convertCurrency = async (
 ): Promise<ConversionResponse> => {
     const res = await axios.request({
         method: "POST",
-        url: "/currency/convert",
+        url: "v1/currency/convert",
         data: data
     });
 
@@ -22,7 +22,7 @@ export const convertCurrency = async (
 export const getLatestRates = async (
     baseCurrency: string
 ): Promise<ExchangeRateResponse> => {
-    const res = await axios.get("/currency/latest", {
+    const res = await axios.get("v1/currency/latest", {
         params: { baseCurrency }
     });
 
@@ -30,10 +30,10 @@ export const getLatestRates = async (
 };
 
 export const getHistoricalRates = async (
-    params: HistoricalRateRequest
+    data: HistoricalRateRequest
 ): Promise<HistoricalRateResponse> => {
-    const res = await axios.get("/currency/historical", {
-        params
+    const res = await axios.get("v1/currency/historical", {
+        params: { data }
     });
 
     return res.data;

@@ -1,8 +1,12 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.5.2.0
+# Visual Studio Version 18
+VisualStudioVersion = 18.3.11505.172 d18.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CurrencyConverter.Api", "CurrencyConverter.Api\CurrencyConverter.Api.csproj", "{6CF0D578-4254-42ED-898C-AB033D7F55B2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CurrencyConverter.Api.Tests", "CurrencyConverter.Api.Tests\CurrencyConverter.Api.Tests.csproj", "{C8BB7C1B-40FE-C953-93FA-6D0FB4C6DB24}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CurrencyConverter.Api.IntegrationTests", "CurrencyConverter.Api.IntegrationTests\CurrencyConverter.Api.IntegrationTests.csproj", "{DF2D2B9F-4271-5DAE-201D-E4C816214767}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -14,6 +18,14 @@ Global
 		{6CF0D578-4254-42ED-898C-AB033D7F55B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6CF0D578-4254-42ED-898C-AB033D7F55B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6CF0D578-4254-42ED-898C-AB033D7F55B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C8BB7C1B-40FE-C953-93FA-6D0FB4C6DB24}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C8BB7C1B-40FE-C953-93FA-6D0FB4C6DB24}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C8BB7C1B-40FE-C953-93FA-6D0FB4C6DB24}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C8BB7C1B-40FE-C953-93FA-6D0FB4C6DB24}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF2D2B9F-4271-5DAE-201D-E4C816214767}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF2D2B9F-4271-5DAE-201D-E4C816214767}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF2D2B9F-4271-5DAE-201D-E4C816214767}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF2D2B9F-4271-5DAE-201D-E4C816214767}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

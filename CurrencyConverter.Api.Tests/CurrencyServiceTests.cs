@@ -130,4 +130,52 @@ public class CurrencyServiceTests
         result.Rates.Count.Should().Be(2);
     }
 
+    [Fact]
+    public async Task GetLatestRates_ShouldCacheResult()
+    {
+        // Arrange
+        _providerMock
+            .Setup(p => p.GetLatestRatesAsync("USD"))
+            .ReturnsAsync(new ExchangeRateResponse
+            {
+                Base = "USD",
+                Date = DateTime.UtcNow,
+                Rates = new Dictionary<string, decimal>
+                {
+                    { "EUR", 0.5m }
+                }
+            });
+
+        // Act - first call should populate cache
+        var first = await _service.GetLatestRates("USD");
+
+        // change provider to throw if called again
+        _providerMock
+            .Setup(p => p.GetLatestRatesAsync("USD"))
+            .Throws(new Exception("Should not be called when cached"));
+
+        // Act - second call should come from cache
+        var second = await _service.GetLatestRates("USD");
+
+        // Assert
+        first.Should().NotBeNull();
+        second.Should().NotBeNull();
+        second.Rates["EUR"].Should().Be(0.5m);
+    }
+
+    [Fact]
+    public async Task ConvertCurrency_ShouldThrow_ForExcludedCurrency()
+    {
+        var request = new ConversionRequest
+        {
+            Amount = 10,
+            FromCurrency = "TRY",
+            ToCurrency = "EUR"
+        };
+
+        await Assert.ThrowsAsync<ArgumentException>(
+            () => _service.ConvertCurrency(request)
+        );
+    }
+
 }

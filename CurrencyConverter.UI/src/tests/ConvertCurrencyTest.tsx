@@ -7,7 +7,7 @@ const mockConvertCurrency = (jest.requireMock('../api/currencyApi') as any).conv
 
 describe('ConvertCurrency Component', () => {
     beforeEach(() => {
-        jest.resetAllMocks();
+        jest.clearAllMocks();
     });
 
     test('renders converter form with initial values', () => {

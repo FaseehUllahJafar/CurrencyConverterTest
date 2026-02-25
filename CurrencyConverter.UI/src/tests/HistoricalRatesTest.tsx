@@ -7,7 +7,7 @@ const mockGetHistoricalRates = (jest.requireMock('../api/currencyApi') as any).g
 
 describe('HistoricalRates Component', () => {
     beforeEach(() => {
-        jest.resetAllMocks();
+        jest.clearAllMocks();
     });
 
     const mockHistoricalData: HistoricalRateResponse = {

@@ -21,7 +21,7 @@ jest.mock('../api/axiosInstance', () => ({
     default: {
         request: jest.fn(),
         get: jest.fn(),
-        post: jest.fn()
+        post: jest.fn().mockResolvedValue({ data: { token: 'test-token' } })
     }
 }));
 

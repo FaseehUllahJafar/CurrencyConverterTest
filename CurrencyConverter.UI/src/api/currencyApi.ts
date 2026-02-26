@@ -32,8 +32,10 @@ export const getLatestRates = async (
 export const getHistoricalRates = async (
     data: HistoricalRateRequest
 ): Promise<HistoricalRateResponse> => {
+
+    console.log(data);
     const res = await axios.get("v1/currency/historical", {
-        params: { data }
+        params: data
     });
 
     return res.data;

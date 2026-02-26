@@ -9,7 +9,7 @@ demonstrating Clean Architecture, resilience, and security.
 1. QUICK START
 -----------------------------------------------------------
 
-BACKEND (.NET 8)
+BACKEND (.NET 10)
 - Location:  /CurrencyConverter.Api
 - Command:   dotnet restore && dotnet run
 - API URL:   https://localhost:7057
